@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-light">ЛСМ Склад 12</div>
+            <div class="list-group list-group-flush">
+                <a href="/dashboard" class="list-group-item list-group-item-action">Dashboard</a>
+                <a href="/machines" class="list-group-item list-group-item-action">Machines</a>
+                <a href="/machines/add" class="list-group-item list-group-item-action">Add Machinery</a>
+                <a href="/rented_out" class="list-group-item list-group-item-action">Rented Out</a>
+                <a href="/obekti" class="list-group-item list-group-item-action">Obekti</a>
+            </div>
+        </div>
+        <!-- Page content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <h1 class="mt-4">Dashboard</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="machineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('machineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Rented', 'Available'],
+                    datasets: [{
+                        data: [{{ rented_count|default(0) }}, {{ total_machines|default(0) - rented_count|default(0) }}],
+                        backgroundColor: ['red', 'green']
+                    }]
+                }
+            });
+        });
+    </script>
+</body>
+</html>

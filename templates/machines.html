@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Машини</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Списък на Машините</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-dismissible fade show">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="mb-3 text-end">
+            <a href="/machines/add" class="btn btn-primary">Добави Машина</a>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Inventory Number</th>
+                    <th>Serial Number</th>
+                    <th>Name</th>
+                    <th>Daily Rent</th>
+                    <th>Value</th>
+                    <th>Acquisition Date</th>
+                    <th>Type</th>
+                    <th>Condition</th>
+                    <th>Last Maintenance</th>
+                    <th>Rented</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for machinery in machinery_list %}
+                <tr>
+                    <td>{{ machinery[0] }}</td>
+                    <td>{{ machinery[1] }}</td>
+                    <td>{{ machinery[2] }}</td>
+                    <td>{{ machinery[3] }}</td>
+                    <td>{{ machinery[4] }}</td>
+                    <td>{{ machinery[5] }}</td>
+                    <td>{{ machinery[6] }}</td>
+                    <td>{{ machinery[7] }}</td>
+                    <td>{{ machinery[8] }}</td>
+                    <td>{{ machinery[9] if machinery[9] else "N/A" }}</td>
+                    <td>{{ "Да" if machinery[10] else "Не" }}</td>
+                    <td>
+                        <a href="/machines/delete/{{ machinery[0] }}" class="btn btn-danger btn-sm">Изтрий</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/" class="btn btn-secondary mt-3">Назад към Началото</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

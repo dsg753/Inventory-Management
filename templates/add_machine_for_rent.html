@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Machine for Rent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Add Machine for Rent</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="machine_id" class="form-label">Select Machine:</label>
+                <select name="machine_id" id="machine_id" class="form-select" required onchange="populateMachineDetails()">
+                    <option value="">Select a machine</option>
+                    {% for machine in available_machines %}
+                        <option value="{{ machine[0] }}" data-name="{{ machine[1] }}" data-type="{{ machine[2] }}" data-condition="{{ machine[3] }}" data-value="{{ machine[4] }}">
+                            {{ machine[0] }} - {{ machine[1] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" id="name" name="name" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="type" class="form-label">Type:</label>
+                <input type="text" id="type" name="type" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="condition" class="form-label">Condition:</label>
+                <input type="text" id="condition" name="condition" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="value" class="form-label">Value:</label>
+                <input type="text" id="value" name="value" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="construction_site" class="form-label">Construction Site:</label>
+                <select name="construction_site" id="construction_site" class="form-select" required onchange="populateRenterName()">
+                    <option value="">Select a construction site</option>
+                    {% for supplier in suppliers %}
+                        <option value="{{ supplier[0] }}" data-renter="{{ supplier[1] }}">
+                            {{ supplier[0] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="renter_name" class="form-label">Renter's Name:</label>
+                <input type="text" id="renter_name" name="renter_name" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="rent_date" class="form-label">Rent Date:</label>
+                <input type="date" name="rent_date" id="rent_date" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Machine for Rent</button>
+        </form>
+
+        <a href="{{ url_for('rented_machines') }}" class="btn btn-secondary mt-3">Back to Rented Machines</a>
+    </div>
+
+    <script>
+        function populateMachineDetails() {
+            const machineSelect = document.getElementById('machine_id');
+            const selectedOption = machineSelect.options[machineSelect.selectedIndex];
+
+            document.getElementById('name').value = selectedOption.getAttribute('data-name');
+            document.getElementById('type').value = selectedOption.getAttribute('data-type');
+            document.getElementById('condition').value = selectedOption.getAttribute('data-condition');
+            document.getElementById('value').value = selectedOption.getAttribute('data-value');
+        }
+
+        function populateRenterName() {
+            const siteSelect = document.getElementById('construction_site');
+            const selectedOption = siteSelect.options[siteSelect.selectedIndex];
+
+            document.getElementById('renter_name').value = selectedOption.getAttribute('data-renter');
+        }
+    </script>
+</body>
+</html>
