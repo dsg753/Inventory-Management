@@ -1,31 +1,28 @@
-Inventory Management System
+# Inventory Management System
 
-This is a Flask-based web application designed to manage and track machinery inventory for your business. The application allows you to:
+This is an Inventory Management System designed to manage machinery and objects. The system allows users to add, view, and rent out machinery, as well as manage objects.
 
-Add machinery to the inventory
+## Features
 
-View the list of all machinery
+- Dashboard: Overview of the inventory with charts displaying rented and available machinery.
+- Machines: View a list of all machinery in the inventory.
+- Add Machinery: Add new machinery to the inventory.
+- Rented Out: Rent out machinery from the available inventory.
+- Obekti: Manage objects including adding, editing, and deleting objects.
 
-Delete machinery from the inventory
 
-Track rental status and other machinery details
+## Usage
 
-Features
+- **Dashboard**: Provides an overview of the inventory with charts.
+- **Machines**: Displays a list of all machinery in the inventory.
+- **Add Machinery**: Allows users to add new machinery to the inventory.
+- **Rented Out**: Allows users to rent out machinery from the available inventory.
+- **Obekti**: Allows users to manage objects including adding, editing, and deleting objects.
 
-Add Machinery: Easily add new machinery with relevant details like name, type, condition, last maintenance date, and rental status.
+## Contributing
 
-View Inventory: Display a table with all machinery in the inventory.
+Contributions are welcome! Please fork the repository and submit a pull request.
 
-Delete Machinery: Remove machinery from the inventory with a single click.
+## License
 
-Modern Design: User-friendly interface with Bootstrap styling.
-
-Requirements
-
-Python 3.8+
-
-Flask
-
-SQLite3
-
-Bootstrap 5
+This project is licensed under the MIT License - see the LICENSE file for details.
