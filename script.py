@@ -164,5 +164,17 @@ def obekti():
     conn.close()
     return render_template("obekti.html", objects=objects)
 
+@app.route('/suppliers')
+def suppliers():
+    conn = sqlite3.connect("inventory.db", timeout=10)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, name, address, description
+        FROM objects
+    ''')
+    suppliers = cursor.fetchall()
+    conn.close()
+    return render_template("suppliers.html", suppliers=suppliers)
+
 if __name__ == "__main__":
     app.run(debug=True)

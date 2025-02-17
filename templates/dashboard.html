@@ -14,17 +14,17 @@
         <div class="border-end bg-white" id="sidebar-wrapper">
             <div class="sidebar-heading border-bottom bg-light">ЛСМ Склад 12</div>
             <div class="list-group list-group-flush">
-                <a href="/dashboard" class="list-group-item list-group-item-action">Dashboard</a>
-                <a href="/machines" class="list-group-item list-group-item-action">Machines</a>
-                <a href="/machines/add" class="list-group-item list-group-item-action">Add Machinery</a>
-                <a href="/rented_out" class="list-group-item list-group-item-action">Rented Out</a>
-                <a href="/obekti" class="list-group-item list-group-item-action">Obekti</a>
+                <a href="/dashboard" class="list-group-item list-group-item-action">Табло</a>
+                <a href="/machines" class="list-group-item list-group-item-action">Машини</a>
+                <a href="/machines/add" class="list-group-item list-group-item-action">Добави машина</a>
+                <a href="/rented_out" class="list-group-item list-group-item-action">Машини под наем</a>
+                <a href="/suppliers" class="list-group-item list-group-item-action">Доставчици</a>
             </div>
         </div>
         <!-- Page content -->
         <div id="page-content-wrapper">
             <div class="container-fluid">
-                <h1 class="mt-4">Dashboard</h1>
+                <h1 class="mt-4">Табло</h1>
                 <div class="row">
                     <div class="col-md-6">
                         <canvas id="machineChart"></canvas>
@@ -40,7 +40,7 @@
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Rented', 'Available'],
+                    labels: ['Под наем', 'Налични'],
                     datasets: [{
                         data: [{{ rented_count|default(0) }}, {{ total_machines|default(0) - rented_count|default(0) }}],
                         backgroundColor: ['red', 'green']

@@ -83,3 +83,33 @@ table th {
     background-color: #5a6268;
 }
 
+/* Sidebar styling */
+#sidebar-wrapper {
+    width: 250px;
+}
+
+#sidebar-wrapper .list-group-item {
+    padding: 15px 20px;
+    font-size: 16px;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Page content styling */
+#page-content-wrapper {
+    flex: 1;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
