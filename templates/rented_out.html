@@ -1,57 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rented Machines</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Rented Machines</h1>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Rented Machines{% endblock %}
 
-        <div class="mb-3 text-end">
-            <a href="{{ url_for('add_machine_for_rent') }}" class="btn btn-primary">Add Machine for Rent</a>
-            <a class="button" href="{{ url_for('index') }}">Back to Home</a>
-        </div>
+{% block content %}
+<h1>Rented Machines</h1>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Rental ID</th>
-                    <th>Machine Name</th>
-                    <th>Renter's Name</th>
-                    <th>Rent Date</th>
-                    <th>Return Date</th>
-                    <th>Строителен Обект</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for rental in rented_machines %}
-                <tr>
-                    <td>{{ rental['rental_id'] }}</td>
-                    <td>{{ rental['name'] }}</td>
-                    <td>{{ rental['renter_name'] }}</td>
-                    <td>{{ rental['rent_date'] }}</td>
-                    <td>{{ rental['return_date'] }}</td>
-                    <td>{{ rental['construction_site'] }}</td>
-                    <td>
-                        <a href="{{ url_for('return_machine', rental_id=rental['rental_id']) }}" class="btn btn-success">Return</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-    </div>
-</body>
-</html>
+<div class="mb-3 text-end">
+    <a href="{{ url_for('add_machine_for_rent') }}" class="btn btn-primary">Add Machine for Rent</a>
+    <a class="button" href="{{ url_for('index') }}">Back to Home</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Rental ID</th>
+            <th>Machine Name</th>
+            <th>Renter's Name</th>
+            <th>Rent Date</th>
+            <th>Return Date</th>
+            <th>Construction Site</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rental in rented_machines %}
+        <tr>
+            <td>{{ rental[0] }}</td>
+            <td>{{ rental[1] }}</td>
+            <td>{{ rental[2] }}</td>
+            <td>{{ rental[3] }}</td>
+            <td>{{ rental[4] }}</td>
+            <td>{{ rental[5] }}</td>
+            <td>
+                <a href="{{ url_for('return_machine', rental_id=rental[0]) }}" class="btn btn-success">Return</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

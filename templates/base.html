@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-light">ЛСМ Склад 12</div>
+            <div class="list-group list-group-flush">
+                <a href="/dashboard" class="list-group-item list-group-item-action">Табло</a>
+                <a href="/machines" class="list-group-item list-group-item-action">Машини</a>
+                <a href="/machines/add" class="list-group-item list-group-item-action">Добави машина</a>
+                <a href="/rented_out" class="list-group-item list-group-item-action">Машини под наем</a>
+                <a href="/suppliers" class="list-group-item list-group-item-action">Доставчици</a>
+            </div>
+        </div>
+        <!-- Page content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

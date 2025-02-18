@@ -47,6 +47,16 @@ def initialize_db():
             FOREIGN KEY (machinery_id) REFERENCES machinery (id)
         )
     """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS suppliers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            construction_site TEXT NOT NULL,
+            technical_manager TEXT NOT NULL,
+            phone_number TEXT
+        )
+    """)
     
     conn.commit()
     conn.close()
@@ -119,13 +129,14 @@ def rented_machines():
     conn = sqlite3.connect("inventory.db", timeout=10)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT machinery.id, machinery.name, rentals.renter_name, rentals.rent_date, rentals.return_date
+        SELECT rentals.rental_id, machinery.name, rentals.renter_name, rentals.rent_date, rentals.return_date, objects.name as construction_site
         FROM rentals
         JOIN machinery ON rentals.machinery_id = machinery.id
+        LEFT JOIN objects ON machinery.location_id = objects.id
     """)
     rented_list = cursor.fetchall()
     conn.close()
-    return render_template("rented_out.html", rented_list=rented_list)
+    return render_template("rented_out.html", rented_machines=rented_list)
 
 @app.route("/machines/rent", methods=["GET", "POST"])
 def add_machine_for_rent():
@@ -148,9 +159,13 @@ def add_machine_for_rent():
 
     cursor.execute("SELECT id, name FROM machinery WHERE is_rented = 0")
     available_machines = cursor.fetchall()
+
+    cursor.execute("SELECT id, name FROM objects")
+    suppliers = cursor.fetchall()
+
     conn.close()
 
-    return render_template("add_machine_for_rent.html", available_machines=available_machines)
+    return render_template("add_machine_for_rent.html", available_machines=available_machines, suppliers=suppliers)
 
 @app.route('/obekti')
 def obekti():
@@ -164,17 +179,54 @@ def obekti():
     conn.close()
     return render_template("obekti.html", objects=objects)
 
-@app.route('/suppliers')
+@app.route("/suppliers", methods=["GET"])
 def suppliers():
     conn = sqlite3.connect("inventory.db", timeout=10)
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT id, name, address, description
-        FROM objects
-    ''')
-    suppliers = cursor.fetchall()
+    cursor.execute("SELECT * FROM suppliers")
+    suppliers_list = cursor.fetchall()
     conn.close()
-    return render_template("suppliers.html", suppliers=suppliers)
+    return render_template("suppliers.html", suppliers=suppliers_list)
+
+@app.route("/suppliers/add", methods=["POST"])
+def add_supplier():
+    name = request.form["name"]
+    construction_site = request.form["construction_site"]
+    technical_manager = request.form["technical_manager"]
+    phone_number = request.form["phone_number"]
+    
+    conn = sqlite3.connect("inventory.db", timeout=10)
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO suppliers (name, construction_site, technical_manager, phone_number) VALUES (?, ?, ?, ?)",
+        (name, construction_site, technical_manager, phone_number)
+    )
+    conn.commit()
+    conn.close()
+    
+    flash("Supplier added successfully!", "success")
+    return redirect(url_for("suppliers"))
+
+@app.route("/return_machine/<int:rental_id>")
+def return_machine(rental_id):
+    conn = sqlite3.connect("inventory.db", timeout=10)
+    cursor = conn.cursor()
+    
+    # Update the return date for the rental
+    cursor.execute("UPDATE rentals SET return_date = date('now') WHERE rental_id = ?", (rental_id,))
+    
+    # Set the machine as not rented
+    cursor.execute("""
+        UPDATE machinery
+        SET is_rented = 0
+        WHERE id = (SELECT machinery_id FROM rentals WHERE rental_id = ?)
+    """, (rental_id,))
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Machine returned successfully!", "success")
+    return redirect(url_for("rented_machines"))
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,48 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Objects</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Objects</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for obj in objects %}
-                <tr>
-                    <td>{{ obj[0] }}</td>
-                    <td>{{ obj[1] }}</td>
-                    <td>{{ obj[2] }}</td>
-                    <td>{{ obj[3] }}</td>
-                    <td>
-                        <a href="/obekti/edit/{{ obj[0] }}">Edit</a> |
-                        <a href="/obekti/delete/{{ obj[0] }}" onclick="return confirm('Are you sure?')">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="/obekti/add" class="button">Добави нов Обект</a>
-        <a href="/" class="button">Back to Home</a>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Objects{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Objects</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in objects %}
+            <tr>
+                <td>{{ obj[0] }}</td>
+                <td>{{ obj[1] }}</td>
+                <td>{{ obj[2] }}</td>
+                <td>{{ obj[3] }}</td>
+                <td>
+                    <a href="/obekti/edit/{{ obj[0] }}">Edit</a> |
+                    <a href="/obekti/delete/{{ obj[0] }}" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/obekti/add" class="button">Добави нов Обект</a>
+    <a href="/" class="button">Back to Home</a>
+</div>
+{% endblock %}
