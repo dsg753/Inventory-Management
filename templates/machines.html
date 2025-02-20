@@ -1,3 +1,4 @@
+<!-- machines.html -->
 {% extends "base.html" %}
 
 {% block title %}Машини{% endblock %}
@@ -8,58 +9,59 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-        <div class="alert alert-dismissible fade show">
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}" role="alert">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                 {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
     {% endif %}
     {% endwith %}
 
     <div class="mb-3 text-end">
-        <a href="/machines/add" class="btn btn-primary">Добави Машина</a>
+        <a href="{{ url_for('add_machinery') }}" class="btn btn-primary">Добави Машина</a>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Inventory Number</th>
-                <th>Serial Number</th>
-                <th>Name</th>
-                <th>Daily Rent</th>
-                <th>Value</th>
-                <th>Acquisition Date</th>
-                <th>Type</th>
-                <th>Condition</th>
-                <th>Last Maintenance</th>
-                <th>Rented</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for machinery in machinery_list %}
-            <tr>
-                <td>{{ machinery[0] }}</td>
-                <td>{{ machinery[1] }}</td>
-                <td>{{ machinery[2] }}</td>
-                <td>{{ machinery[3] }}</td>
-                <td>{{ machinery[4] }}</td>
-                <td>{{ machinery[5] }}</td>
-                <td>{{ machinery[6] }}</td>
-                <td>{{ machinery[7] }}</td>
-                <td>{{ machinery[8] }}</td>
-                <td>{{ machinery[9] if machinery[9] else "N/A" }}</td>
-                <td>{{ "Да" if machinery[10] else "Не" }}</td>
-                <td>
-                    <a href="/machines/delete/{{ machinery[0] }}" class="btn btn-danger btn-sm">Изтрий</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Inventory Number</th>
+                    <th>Serial Number</th>
+                    <th>Name</th>
+                    <th>Daily Rent</th>
+                    <th>Value</th>
+                    <th>Acquisition Date</th>
+                    <th>Type</th>
+                    <th>Condition</th>
+                    <th>Last Maintenance</th>
+                    <th>Rented</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for machinery in machinery_list %}
+                <tr>
+                    <td>{{ machinery[0] }}</td>
+                    <td>{{ machinery[1] }}</td>
+                    <td>{{ machinery[2] }}</td>
+                    <td>{{ machinery[3] }}</td>
+                    <td>{{ machinery[4] }}</td>
+                    <td>{{ machinery[5] }}</td>
+                    <td>{{ machinery[6] }}</td>
+                    <td>{{ machinery[7] }}</td>
+                    <td>{{ machinery[8] }}</td>
+                    <td>{{ machinery[9] if machinery[9] else "N/A" }}</td>
+                    <td>{{ "Да" if machinery[10] else "Не" }}</td>
+                    <td>
+                        <a href="/machines/delete/{{ machinery[0] }}" class="btn btn-danger btn-sm">Изтрий</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <a href="/" class="btn btn-secondary mt-3">Назад към Началото</a>
 </div>

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "inventory_secret_key"
@@ -67,17 +68,28 @@ initialize_db()
 def index():
     return render_template("dashboard.html")
 
+# Update the machines route to ensure proper data retrieval
 @app.route("/machines")
 def machines():
     conn = sqlite3.connect("inventory.db", timeout=10)
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT id, inventory_number, serial_number, name, daily_rent, value, acquisition_date, type, condition, last_maintenance, is_rented 
-        FROM machinery
-    """)
-    machinery_list = cursor.fetchall()
-    conn.close()
-    return render_template("machines.html", machinery_list=machinery_list)
+    try:
+        cursor.execute("""
+            SELECT id, inventory_number, serial_number, name, 
+                   daily_rent, value, acquisition_date, type, 
+                   condition, last_maintenance, is_rented
+            FROM machinery
+            ORDER BY id DESC
+        """)
+        machinery_list = cursor.fetchall()
+        return render_template("machines.html", machinery_list=machinery_list)
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        flash("Error loading machinery data", "error")
+        return render_template("machines.html", machinery_list=[])
+    finally:
+        conn.close()
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -96,47 +108,78 @@ def dashboard():
 
     return render_template("dashboard.html", total_machines=total_machines, rented_count=rented_count)
 
-
 @app.route('/machines/add', methods=['GET', 'POST'])
 def add_machinery():
     if request.method == 'POST':
-        inventory_number = request.form['inventory_number']
-        serial_number = request.form['serial_number']
-        name = request.form['name']
-        type = request.form['type']
-        condition = request.form['condition']
-        daily_rent = request.form['daily_rent']
-        value = request.form['value']
-        acquisition_date = request.form['acquisition_date']
-        last_maintenance = request.form['last_maintenance']
-
-        conn = sqlite3.connect("inventory.db", timeout=10)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO machinery (inventory_number, serial_number, name, type, condition, daily_rent, value, acquisition_date, last_maintenance, is_rented)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
-        ''', (inventory_number, serial_number, name, type, condition, daily_rent, value, acquisition_date, last_maintenance))
-        conn.commit()
-        conn.close()
-
-        flash("Machinery added successfully!", "success")
-        return redirect(url_for('machines'))
+        try:
+            conn = sqlite3.connect("inventory.db", timeout=10)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO machinery (
+                    inventory_number, serial_number, name, type, condition,
+                    daily_rent, value, acquisition_date, last_maintenance,
+                    is_rented
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+            ''', (
+                request.form['inventory_number'],
+                request.form['serial_number'],
+                request.form['name'],
+                request.form['type'],
+                request.form['condition'],
+                request.form['daily_rent'],
+                request.form['value'],
+                request.form['acquisition_date'],
+                request.form['last_maintenance']
+            ))
+            
+            conn.commit()
+            flash("Machinery added successfully!", "success")
+            return redirect(url_for('machines'))
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            flash("Error adding machinery", "error")
+        finally:
+            conn.close()
 
     return render_template("add_machinery.html")
+
+    # GET request - show the form
+    conn = sqlite3.connect("inventory.db", timeout=10)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM objects")
+    locations = cursor.fetchall()
+    conn.close()
+    return render_template("add_machinery.html", locations=locations)
 
 @app.route("/rented_out")
 def rented_machines():
     conn = sqlite3.connect("inventory.db", timeout=10)
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT rentals.rental_id, machinery.name, rentals.renter_name, rentals.rent_date, rentals.return_date, objects.name as construction_site
-        FROM rentals
-        JOIN machinery ON rentals.machinery_id = machinery.id
-        LEFT JOIN objects ON machinery.location_id = objects.id
-    """)
-    rented_list = cursor.fetchall()
-    conn.close()
-    return render_template("rented_out.html", rented_machines=rented_list)
+    try:
+        # Modified query to show ALL rentals, including returned ones
+        cursor.execute("""
+            SELECT 
+                r.rental_id,
+                m.name AS machine_name,
+                r.renter_name,
+                r.rent_date,
+                r.return_date,
+                s.name AS supplier_name
+            FROM rentals r
+            JOIN machinery m ON r.machinery_id = m.id
+            LEFT JOIN suppliers s ON r.renter_name = s.name
+            ORDER BY r.rent_date DESC
+        """)
+        rented_list = cursor.fetchall()
+        return render_template("rented_out.html", rented_machines=rented_list)
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        flash("Error loading rental data", "error")
+        return render_template("rented_out.html", rented_machines=[])
+    finally:
+        conn.close()
 
 @app.route("/machines/rent", methods=["GET", "POST"])
 def add_machine_for_rent():
@@ -157,15 +200,19 @@ def add_machine_for_rent():
         flash("Machine rented successfully!", "success")
         return redirect(url_for("rented_machines"))
 
+    # Get available machines
     cursor.execute("SELECT id, name FROM machinery WHERE is_rented = 0")
     available_machines = cursor.fetchall()
 
-    cursor.execute("SELECT id, name FROM objects")
+    # Get suppliers for the dropdown
+    cursor.execute("SELECT id, name FROM suppliers")
     suppliers = cursor.fetchall()
 
     conn.close()
 
-    return render_template("add_machine_for_rent.html", available_machines=available_machines, suppliers=suppliers)
+    return render_template("add_machine_for_rent.html", 
+                         available_machines=available_machines, 
+                         suppliers=suppliers)
 
 @app.route('/obekti')
 def obekti():
@@ -211,21 +258,37 @@ def add_supplier():
 def return_machine(rental_id):
     conn = sqlite3.connect("inventory.db", timeout=10)
     cursor = conn.cursor()
+    try:
+        # Get the current date for return
+        return_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Update the return date for the rental
+        cursor.execute("""
+            UPDATE rentals 
+            SET return_date = ? 
+            WHERE rental_id = ?
+        """, (return_date, rental_id))
+        
+        # Get the machinery_id from the rental
+        cursor.execute("SELECT machinery_id FROM rentals WHERE rental_id = ?", (rental_id,))
+        machinery_id = cursor.fetchone()[0]
+        
+        # Update the machinery status
+        cursor.execute("""
+            UPDATE machinery
+            SET is_rented = 0
+            WHERE id = ?
+        """, (machinery_id,))
+        
+        conn.commit()
+        flash("Machine returned successfully!", "success")
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        flash("Error returning machine", "error")
+        conn.rollback()
+    finally:
+        conn.close()
     
-    # Update the return date for the rental
-    cursor.execute("UPDATE rentals SET return_date = date('now') WHERE rental_id = ?", (rental_id,))
-    
-    # Set the machine as not rented
-    cursor.execute("""
-        UPDATE machinery
-        SET is_rented = 0
-        WHERE id = (SELECT machinery_id FROM rentals WHERE rental_id = ?)
-    """, (rental_id,))
-    
-    conn.commit()
-    conn.close()
-    
-    flash("Machine returned successfully!", "success")
     return redirect(url_for("rented_machines"))
 
 if __name__ == "__main__":
